@@ -1,0 +1,41 @@
+version: "3.9"
+services:
+  main:
+    build: main_service
+    ports:
+      - "5000:5000"
+    environment:
+      - REDIS_HOST=redis
+    # networks:
+    #   - main_network
+    links:
+      - redis
+  persistance:
+    build: persistence_service
+    ports:
+      - "3000:3000"
+    environment:
+      - REDIS_HOST=redis
+      - MONGODB_URL=mongodb://mongo:27017/
+    links:
+      - redis
+      - mongo
+  redis:
+    image: redis/redis-stack-server:latest
+    hostname: redis
+    container_name: redis
+    ports:
+      - "6379:6379"
+    restart: always
+  mongo:
+    image: mongo:latest
+    hostname: mongo
+    container_name: mongo
+    ports:
+      - 27017:27017
+    environment:
+      - MONGO_INITDB_DATABASE=stock_market
+    volumes:
+    - mongodb_data_cont:/data/db
+volumes:
+  mongodb_data_cont:
